@@ -6,7 +6,7 @@ namespace BetterCaravans
 {
     public class BetterCaravansMod : Mod
     {
-        private const string HarmonyId = "kodylukens.bettercaravans";
+        private const string HarmonyId = "cocoapebbles.bettercaravans";
         public static Harmony HarmonyInstance { get; private set; }
         public static BetterCaravansSettings Settings { get; private set; }
 

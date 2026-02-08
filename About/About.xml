@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Better Caravans</name>
-  <author>kody-lukens</author>
-  <packageId>kodylukens.bettercaravans</packageId>
-  <supportedVersions>
-    <li>1.6</li>
-  </supportedVersions>
-  <description>Quality-of-life improvements for caravan formation and travel.</description>
-</ModMetaData>
-<?xml version="1.0" encoding="utf-8"?>
-<ModMetaData>
-  <name>Better Caravans</name>
   <author>cocoapebbles</author>
   <packageId>cocoapebbles.bettercaravans</packageId>
   <supportedVersions>

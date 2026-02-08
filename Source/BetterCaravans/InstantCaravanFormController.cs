@@ -11,11 +11,11 @@ namespace BetterCaravans
     {
         public static bool InstantLaunchInProgress { get; private set; }
 
-        public static void TryInstantForm(object dialogInstance)
+        public static bool TryInstantForm(object dialogInstance)
         {
             if (dialogInstance == null)
             {
-                return;
+                return false;
             }
 
             Map map = TryGetMap(dialogInstance) ?? Find.CurrentMap;
@@ -23,13 +23,13 @@ namespace BetterCaravans
             {
                 Messages.Message("Cannot instantly form caravan while hostiles are present.", MessageTypeDefOf.RejectInput, false);
                 Log.Warning("[BetterCaravans] Instant caravan launch blocked: hostiles present on map.");
-                return;
+                return false;
             }
 
             InstantLaunchInProgress = true;
             try
             {
-                InvokeInstantCaravanMethod(dialogInstance);
+                return InvokeInstantCaravanMethod(dialogInstance);
             }
             finally
             {

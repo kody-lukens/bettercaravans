@@ -5,32 +5,51 @@ using Verse;
 
 namespace BetterCaravans
 {
-    [HarmonyPatch(typeof(Dialog_FormCaravan), "DoWindowContents")]
+    [HarmonyPatch(typeof(Dialog_FormCaravan), "DoBottomButtons", new[] { typeof(Rect) })]
     public static class Dialog_FormCaravan_Patch
     {
-        public static void Postfix(Dialog_FormCaravan __instance, object[] __args)
+        private const float DefaultButtonWidth = 160f;
+        private const float DefaultButtonHeight = 35f;
+        private const float ButtonGap = 10f;
+
+        public static void Postfix(Dialog_FormCaravan __instance, Rect rect)
         {
-            if (!BetterCaravansMod.Settings.enableInstantFormationButton || __args == null || __args.Length == 0)
+            if (!BetterCaravansMod.Settings.enableInstantFormationButton)
             {
                 return;
             }
 
-            if (!(__args[0] is Rect inRect))
+            if (BetterCaravansMod.Settings.autoSwitchFoodRestriction)
+            {
+                CaravanFoodRestrictionController.EnsureCaravanPolicy();
+            }
+
+            Rect sendRect;
+            if (!FormCaravanSendButtonTracker.TryGetSendButtonRect(out sendRect))
+            {
+                float buttonHeight = Mathf.Min(DefaultButtonHeight, rect.height);
+                float buttonY = rect.yMax - buttonHeight;
+                sendRect = new Rect(rect.xMax - DefaultButtonWidth, buttonY, DefaultButtonWidth, buttonHeight);
+            }
+
+            const string label = "Send Instantly";
+            float desiredWidth = Mathf.Max(DefaultButtonWidth, Text.CalcSize(label).x + 20f);
+            float availableWidth = sendRect.x - ButtonGap - rect.x;
+            if (availableWidth <= 0f)
             {
                 return;
             }
+            float buttonWidth = Mathf.Min(desiredWidth, availableWidth);
 
-            const float buttonWidth = 220f;
-            const float buttonHeight = 32f;
-            float x = inRect.x + (inRect.width - buttonWidth) / 2f;
-            float y = inRect.y + inRect.height - buttonHeight - 42f;
-            Rect buttonRect = new Rect(x, y, buttonWidth, buttonHeight);
-
+            Rect buttonRect = new Rect(sendRect.x - ButtonGap - buttonWidth, sendRect.y, buttonWidth, sendRect.height);
             TooltipHandler.TipRegion(buttonRect, "Instantly finalize and launch the caravan if it is safe to do so.");
 
-            if (Widgets.ButtonText(buttonRect, "Instant Form Caravan"))
+            if (Widgets.ButtonText(buttonRect, label))
             {
-                InstantCaravanFormController.TryInstantForm(__instance);
+                if (InstantCaravanFormController.TryInstantForm(__instance))
+                {
+                    __instance.Close(true);
+                }
             }
         }
     }

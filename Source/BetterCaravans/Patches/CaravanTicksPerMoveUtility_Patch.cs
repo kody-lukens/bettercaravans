@@ -1,3 +1,6 @@
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -6,10 +9,26 @@ using Verse;
 
 namespace BetterCaravans
 {
-    [HarmonyPatch(typeof(CaravanTicksPerMoveUtility), "GetTicksPerMove")]
-    public static class CaravanTicksPerMoveUtility_Patch
+    [HarmonyPatch]
+    public static class Patch_CaravanTicksPerMoveUtility_GetTicksPerMove
     {
-        public static void Postfix(Caravan caravan, ref int __result)
+        static MethodBase TargetMethod()
+        {
+            var type = typeof(CaravanTicksPerMoveUtility);
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(m => m.Name == "GetTicksPerMove")
+                .ToList();
+
+            return methods.First(m =>
+            {
+                ParameterInfo[] p = m.GetParameters();
+                return p.Length == 2 &&
+                       p[0].ParameterType == typeof(Caravan) &&
+                       p[1].ParameterType == typeof(StringBuilder);
+            });
+        }
+
+        public static void Postfix(Caravan caravan, StringBuilder explanation, ref int __result)
         {
             if (caravan == null)
             {
